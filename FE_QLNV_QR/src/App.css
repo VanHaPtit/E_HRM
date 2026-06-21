@@ -1,0 +1,25 @@
+/* XÓA HOẶC COMMENT LẠI ĐOẠN NÀY */
+/* #root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+*/
+
+/* Thêm css reset cơ bản nếu cần */
+#root {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  /* Trả lại căn trái cho web admin */
+}
+
+/* Fix lỗi logo (nếu có) */
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}

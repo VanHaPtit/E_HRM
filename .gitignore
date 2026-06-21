@@ -1,0 +1,9 @@
+# Security secrets
+.env
+
+# Old disconnected code
+QLNV_QR/
+
+# System files
+.DS_Store
+Thumbs.db

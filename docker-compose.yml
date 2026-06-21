@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  # 1. Cấu hình Redis Cache
+  redis:
+    image: redis:alpine
+    container_name: qlnv_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
+  # 2. Cấu hình Backend (Spring Boot)
+  backend:
+    build:
+      context: ./QLNV
+      dockerfile: Dockerfile
+    container_name: qlnv_backend
+    ports:
+      - "8080:8080"
+    environment:
+      # Nạp tự động các API Key bí mật từ file .env
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY}
+      # Ép Spring Boot sử dụng Redis trong Docker thay vì localhost
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      # Dùng host.docker.internal để Backend trong Docker có thể gọi ra MySQL ngoài máy thật (Workbench) của bạn
+      - SPRING_DATASOURCE_URL=jdbc:mysql://host.docker.internal:3306/qlnv?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  # 3. Cấu hình Frontend (ReactJS/Vite + Nginx)
+  frontend:
+    build:
+      context: ./FE_QLNV_QR
+      dockerfile: Dockerfile
+    container_name: qlnv_frontend
+    ports:
+      - "5173:80"  # Vẫn giữ nguyên cổng 5173 cho bạn dễ dùng
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  redis_data:
